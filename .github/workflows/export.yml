@@ -1,0 +1,26 @@
+name: export-image
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Pull image
+        run: |
+          IMG=ghcr.io/arduino/app-bricks/python-apps-base:0.13.1
+          docker pull "$IMG"
+          docker save "$IMG" | gzip -1 > python-apps-base-0.13.1.tar.gz
+          ls -lh python-apps-base-0.13.1.tar.gz
+
+      - name: Publish as release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: image-0.13.1
+          name: python-apps-base 0.13.1
+          files: python-apps-base-0.13.1.tar.gz
